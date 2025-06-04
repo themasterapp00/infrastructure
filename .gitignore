@@ -1,0 +1,7 @@
+build/
+.idea/
+
+**/postgres_data
+**/pg_backups
+**/backend-logs
+**/backoffice-logs

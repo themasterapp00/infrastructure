@@ -1,0 +1,117 @@
+# Use postgres/example user/password credentials
+## RUN COMMAND
+## docker-compose up -d
+
+name: master-app
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d/
+      - ./frontend:/var/www/html
+      - ./certbot/conf:/etc/letsencrypt
+    networks:
+      - master-app-network
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./frontend:/var/www/html
+      - ./certbot/conf:/etc/letsencrypt
+    depends_on:
+      - nginx
+    command: certonly --webroot --webroot-path=/var/www/html --email themasterapp00@gmail.com --expand --agree-tos --no-eff-email --keep-until-expiring -d masterapp.click -d www.masterapp.click # --keep-until-expiring  https://wkontenerach.pl/docker-lets-encrypt-certbot-wdrozenie-sklepu-internetowego-prestashop-z-wlasnym-modulem-przy-uzyciu-docker-compose/
+  frontend:
+    image: themasterapp/frontend:latest
+    container_name: frontend
+    restart: always
+    networks:
+      - master-app-network
+    depends_on:
+      - nginx
+  backend:
+    image: themasterapp/backend:latest
+    container_name: backend
+    restart: always
+    networks:
+      - master-app-network
+    depends_on:
+      - backend-postgresql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://backend-postgresql/${BE_POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${BE_POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${BE_POSTGRES_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=docker,dev
+      - KEYCLOAK_REALM_URL=${KEYCLOAK_CLIENT_URL}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    volumes:
+      - ./logs:/backend-logs/
+  backend-postgresql:
+    image: postgres:17.4
+    container_name: backend-postgresql
+    restart: always
+    networks:
+      - master-app-network
+    environment:
+      POSTGRES_DB: ${BE_POSTGRES_DB}
+      POSTGRES_USER: ${BE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${BE_POSTGRES_PASSWORD}
+    volumes:
+#      - ./be-db-data:/var/lib/postgresql/data
+      - ./pg_backups:/backups/
+  keycloak-postgresql:
+    image: postgres:17.4
+    container_name: keycloak-postgresql
+    restart: always
+    networks:
+      - master-app-network
+    environment:
+      POSTGRES_DB: ${KC_POSTGRES_DB}
+      POSTGRES_USER: ${KC_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${KC_POSTGRES_PASSWORD}
+    volumes:
+#      - ./kc-db-data:/var/lib/postgresql/data
+      - ./keycloak_pg_backups:/backups/
+  my-keycloak:
+    image: quay.io/keycloak/keycloak:26.1
+    environment:
+#      KC_HOSTNAME: https://masterapp.click
+      KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_PROXY_HEADERS: xforwarded #Use this environment variable starting version 24
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+      KC_PROXY: edge
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgresql/${KC_POSTGRES_DB}
+      KC_DB_USERNAME: ${KC_POSTGRES_USER}
+      KC_DB_PASSWORD: ${KC_POSTGRES_PASSWORD}
+      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: info
+
+      KC_HTTP_RELATIVE_PATH: "/keycloak"
+
+      KC_PROXY_ADDRESS_FORWARDING: "true"
+      KC_REDIRECT_SOCKET: "proxy-https"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:7080/health/ready" ]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    command: [ "start-dev", "--http-port", "7080", "--https-port", "7443" , "--import-realm"]
+    depends_on:
+      - keycloak-postgresql
+    networks:
+      - master-app-network
+    volumes:
+      - ./keycloak_backups:/backups/
+      - ./keycloak_import:/opt/keycloak/data/import
+networks:
+  master-app-network:
+    driver: bridge

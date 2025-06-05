@@ -110,6 +110,22 @@ services:
     volumes:
       - ./keycloak_backups:/backups/
       - ./keycloak_import:/opt/keycloak/data/import
+  pg-backup:
+    container_name: selfup_pg_backup_cron
+    build: pg-backup
+    depends_on:
+      - postgresql-db
+    volumes:
+      - ./pg_backups:/backups
+    networks:
+      - selfup-network
+    environment:
+      POSTGRES_DB: ${BE_POSTGRES_DB}
+      POSTGRES_USER: ${BE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${BE_POSTGRES_PASSWORD}
+      KC_DB: ${KC_POSTGRES_DB}
+      KC_DB_USERNAME: ${KC_POSTGRES_USER}
+      KC_DB_PASSWORD: ${KC_POSTGRES_PASSWORD}
 networks:
   master-app-network:
     driver: bridge

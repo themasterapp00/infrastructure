@@ -76,6 +76,7 @@ services:
       - ./kc-db-data:/var/lib/postgresql/data
       - ./keycloak_pg_backups:/backups/
   keycloak:
+    container_name: keycloak
     image: quay.io/keycloak/keycloak:26.1
     environment:
 #      KC_HOSTNAME: https://masterapp.click

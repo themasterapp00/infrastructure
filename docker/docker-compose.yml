@@ -75,7 +75,7 @@ services:
     volumes:
 #      - ./kc-db-data:/var/lib/postgresql/data
       - ./keycloak_pg_backups:/backups/
-  my-keycloak:
+  keycloak:
     image: quay.io/keycloak/keycloak:26.1
     environment:
 #      KC_HOSTNAME: https://masterapp.click
@@ -111,14 +111,15 @@ services:
       - ./keycloak_backups:/backups/
       - ./keycloak_import:/opt/keycloak/data/import
   pg-backup:
-    container_name: selfup_pg_backup_cron
+    container_name: pg_backup_cron
     build: pg-backup
     depends_on:
-      - postgresql-db
+      - backend-postgresql
+      - keycloak-postgresql
     volumes:
       - ./pg_backups:/backups
     networks:
-      - selfup-network
+      - master-app-network
     environment:
       POSTGRES_DB: ${BE_POSTGRES_DB}
       POSTGRES_USER: ${BE_POSTGRES_USER}

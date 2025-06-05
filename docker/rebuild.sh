@@ -1,7 +1,4 @@
 #bash
-cd ../..
 git pull
-mvn clean package
-cd docker/dev
-cp ../../target/backend-0.0.1-SNAPSHOT.jar ./backend/files/backend-0.0.1-SNAPSHOT.jar
+git reset --hard origin/main
 docker compose up -d --build

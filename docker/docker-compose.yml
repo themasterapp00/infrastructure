@@ -60,7 +60,7 @@ services:
       POSTGRES_USER: ${BE_POSTGRES_USER}
       POSTGRES_PASSWORD: ${BE_POSTGRES_PASSWORD}
     volumes:
-#      - ./be-db-data:/var/lib/postgresql/data
+      - ./be-db-data:/var/lib/postgresql/data
       - ./pg_backups:/backups/
   keycloak-postgresql:
     image: postgres:17.4
@@ -73,7 +73,7 @@ services:
       POSTGRES_USER: ${KC_POSTGRES_USER}
       POSTGRES_PASSWORD: ${KC_POSTGRES_PASSWORD}
     volumes:
-#      - ./kc-db-data:/var/lib/postgresql/data
+      - ./kc-db-data:/var/lib/postgresql/data
       - ./keycloak_pg_backups:/backups/
   keycloak:
     image: quay.io/keycloak/keycloak:26.1

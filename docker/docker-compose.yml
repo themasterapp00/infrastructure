@@ -13,18 +13,16 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf:/etc/nginx/conf.d/
-      - ./frontend:/var/www/html
       - ./certbot/conf:/etc/letsencrypt
     networks:
       - master-app-network
   certbot:
     image: certbot/certbot
     volumes:
-      - ./frontend:/var/www/html
       - ./certbot/conf:/etc/letsencrypt
     depends_on:
       - nginx
-    command: certonly --webroot --webroot-path=/var/www/html --email themasterapp00@gmail.com --expand --agree-tos --no-eff-email --keep-until-expiring -d masterapp.click -d www.masterapp.click # --keep-until-expiring  https://wkontenerach.pl/docker-lets-encrypt-certbot-wdrozenie-sklepu-internetowego-prestashop-z-wlasnym-modulem-przy-uzyciu-docker-compose/
+    command: certonly --nginx --email themasterapp00@gmail.com --expand --agree-tos --no-eff-email --keep-until-expiring -d masterapp.click -d www.masterapp.click # --keep-until-expiring  https://wkontenerach.pl/docker-lets-encrypt-certbot-wdrozenie-sklepu-internetowego-prestashop-z-wlasnym-modulem-przy-uzyciu-docker-compose/
   frontend:
     image: themasterapp/frontend:latest
     container_name: frontend

@@ -23,17 +23,17 @@ services:
   certbot:
     image: certbot/certbot
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot/
+      - ./certbot/conf:/etc/letsencrypt
     command: renew --quiet
-    depends_on:
-      - nginx
   frontend:
     image: themasterapp/frontend:latest
     container_name: frontend
     restart: always
     networks:
       - master-app-network
+    depends_on:
+      - nginx
   backend:
     image: themasterapp/backend:latest
     container_name: backend

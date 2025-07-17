@@ -32,6 +32,10 @@ services:
     image: themasterapp/frontend:latest
     container_name: frontend
     restart: always
+    environment:
+      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+      - KEYCLOAK_REALM=${KEYCLOAK_REALM}
     networks:
       - master-app-network
   backend:

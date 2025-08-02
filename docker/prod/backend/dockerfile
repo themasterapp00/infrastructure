@@ -1,0 +1,5 @@
+FROM eclipse-temurin:21-jdk
+ENV TZ=Europe/Warsaw
+
+COPY ./files/*.jar ./app.jar
+ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=dev", "./app.jar"]

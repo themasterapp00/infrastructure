@@ -1,2 +1,0 @@
-0 8 * * * /make_pg_backup.sh >> /backups/make_pg_backup.log
-0 8 * * * /remove_old_backups.sh >> /backups/remove_old_backups.log

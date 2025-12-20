@@ -21,7 +21,7 @@ fi
 export PGPASSWORD="$KC_DB_PASSWORD"
 DUMP_FILE="/backups/keycloak-$(date +%Y-%m-%d-%H-%M-%S).dump"
 ERROR_LOG_FILE="/backups/keycloak-$(date +%Y-%m-%d-%H-%M-%S).error.log"
-pg_dump -h keycloak-postgresql -U KC_DB_USERNAME -Fc $KC_DB > "$DUMP_FILE" 2> "$ERROR_LOG_FILE"
+pg_dump -h keycloak-postgresql -U $KC_DB_USERNAME -Fc $KC_DB > "$DUMP_FILE" 2> "$ERROR_LOG_FILE"
 
 # Check if the error log has content
 if [ -s "$ERROR_LOG_FILE" ]; then

@@ -70,6 +70,8 @@ services:
     volumes:
       - ./be-db-data:/var/lib/postgresql/data
       - ./pg_backups:/backups/
+      - ./pg_restore:/restore/
+      - ./postgres-init/backend:/docker-entrypoint-initdb.d
   keycloak-postgresql:
     image: postgres:17.4
     container_name: keycloak-postgresql
@@ -83,6 +85,8 @@ services:
     volumes:
       - ./kc-db-data:/var/lib/postgresql/data
       - ./keycloak_pg_backups:/backups/
+      - ./pg_restore:/restore/
+      - ./postgres-init/keycloak:/docker-entrypoint-initdb.d
   keycloak:
     container_name: keycloak
     image: quay.io/keycloak/keycloak:26.1

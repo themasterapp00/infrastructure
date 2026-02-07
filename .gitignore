@@ -5,3 +5,6 @@ build/
 **/pg_backups
 **/backend-logs
 **/backoffice-logs
+
+be-db-data/
+kc-db-data/

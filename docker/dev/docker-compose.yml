@@ -63,6 +63,8 @@ services:
     restart: always
     networks:
       - master-app-network
+    ports:
+      - "15432:5432"
     environment:
       POSTGRES_DB: ${BE_POSTGRES_DB}
       POSTGRES_USER: ${BE_POSTGRES_USER}
@@ -70,12 +72,16 @@ services:
     volumes:
       - ./be-db-data:/var/lib/postgresql/data
       - ./pg_backups:/backups/
+      - ./pg_restore:/restore/
+      - ./postgres-init/backend:/docker-entrypoint-initdb.d
   keycloak-postgresql:
     image: postgres:17.4
     container_name: keycloak-postgresql
     restart: always
     networks:
       - master-app-network
+    ports:
+      - "25432:5432"
     environment:
       POSTGRES_DB: ${KC_POSTGRES_DB}
       POSTGRES_USER: ${KC_POSTGRES_USER}
@@ -83,6 +89,8 @@ services:
     volumes:
       - ./kc-db-data:/var/lib/postgresql/data
       - ./keycloak_pg_backups:/backups/
+      - ./pg_restore:/restore/
+      - ./postgres-init/keycloak:/docker-entrypoint-initdb.d
   keycloak:
     container_name: keycloak
     image: quay.io/keycloak/keycloak:26.1
@@ -107,6 +115,8 @@ services:
 
       KC_PROXY_ADDRESS_FORWARDING: "true"
       KC_REDIRECT_SOCKET: "proxy-https"
+    ports:
+      - "7080:7080"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:7080/health/ready" ]
       interval: 15s
